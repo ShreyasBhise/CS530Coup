@@ -1,3 +1,4 @@
+
 class Agent:
      def __init__(self, id):
           self.lives = 2
@@ -48,8 +49,17 @@ class RandomAgent(Agent):
                     action = random.choice(self.moves)
                     if (action == 'Coup' and self.coins < 7) or (action == 'Assassinate' and self.coins < 3):
                          continue
+                    if action == 'Steal': # picks a new action if 'Steal' and every alive target has 0 coins
+                         total_coins = 0
+                         for target in range(0, len(player_list)):
+                              if target == self.id or not player_list[target].is_alive():
+                                   continue
+                              total_coins += player_list[target].coins
+                         if total_coins == 0:
+                              continue
+
                if action in self.need_target:
-                    while target == self.id or not player_list[target].is_alive() or player_list[target].coins == 0:
+                    while target == self.id or not player_list[target].is_alive() or (player_list[target].coins == 0 and action == 'Steal'):
                          target = random.randint(0, len(player_list) - 1)
                invalid = False
           return (action, target)
@@ -61,9 +71,12 @@ class RandomAgent(Agent):
           return random.choice([True,False])
           
      def flip_card(self):
+          if self.cards[0].is_revealed and self.cards[1].is_revealed:
+               return
           card = self.cards[random.randint(0, 1)]
           while card.is_revealed:
-               card = self.cards[random.randint(0, 1)]
+               x = random.randint(0, 1)
+               card = self.cards[x]
           card.life_lost()
 
           super().flip_card()
