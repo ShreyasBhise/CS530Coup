@@ -5,6 +5,7 @@ class Card:
         self.is_revealed = False
         self.valid_actions = None
         self.can_block = None
+
     def life_lost(self):
         self.is_revealed = True
 
@@ -60,11 +61,12 @@ class Deck:
         random.shuffle(self.cards)
 
     def deal(self) -> Card:
-       return self.cards.pop(0)
+        print(f'Deck has {len(self.cards) - 1} cards after deal')
+        return self.cards.pop(0)
     
     def return_cards(self, to_add:list):
         self.cards += to_add
-
+        print(f'Deck has {len(self.cards)} cards after return')
         random.shuffle(self.cards)
 
 

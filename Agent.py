@@ -71,6 +71,7 @@ class RandomAgent(Agent):
           return random.choice([True,False])
           
      def flip_card(self):
+          super().flip_card()
           if self.cards[0].is_revealed and self.cards[1].is_revealed:
                return
           card = self.cards[random.randint(0, 1)]
@@ -78,8 +79,6 @@ class RandomAgent(Agent):
                x = random.randint(0, 1)
                card = self.cards[x]
           card.life_lost()
-
-          super().flip_card()
 
      def exchange(self, new_cards:list) -> list:
           #case 1 : 2 lives 
@@ -95,13 +94,11 @@ class RandomAgent(Agent):
           for _ in range(self.lives):
                self.cards.append(card_list.pop(random.randint(0, len(new_cards)-1)))
           
-          to_discard = list()
           for i in range(1, -1, -1):
                if not self.cards[i].is_revealed:
-                    to_discard.append(self.cards.pop(i))
+                    self.cards.pop(i)
 
-     
-          return to_discard
+          return card_list
 
 
 
@@ -110,3 +107,5 @@ class RandomAgent(Agent):
           
                
           
+class MonteCarloTreeAgent(Agent):
+     pass
