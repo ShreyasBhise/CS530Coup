@@ -1,3 +1,4 @@
+import Game
 
 class Agent:
      def __init__(self, id):
@@ -10,22 +11,22 @@ class Agent:
      def get_card(self, card):
           self.cards.append(card)
 
-     def take_action(self, player_list:list):
+     def take_action(self, game:Game):
           return
 
-     def challenge(self, action:tuple, player_list:list):
+     def challenge(self, game:Game):
           return False
 
-     def block(self, action:tuple, player_list:list):
+     def block(self, game:Game):
           return False
           
-     def flip_card(self):
+     def flip_card(self, game:Game):
           self.lives -= 1
 
      def is_alive(self):
           return self.lives > 0
 
-     def exchange(self, new_cards:list) -> list:
+     def exchange(self, game:Game, new_cards:list) -> list:
           return new_cards
 
      def __repr__(self):
@@ -38,7 +39,7 @@ class RandomAgent(Agent):
      def __init__(self, id):
           super().__init__(id)
      
-     def take_action(self, player_list:list):
+     def take_action(self, game:Game):
           invalid = True
           action = None
           target = self.id
@@ -51,27 +52,27 @@ class RandomAgent(Agent):
                          continue
                     if action == 'Steal': # picks a new action if 'Steal' and every alive target has 0 coins
                          total_coins = 0
-                         for target in range(0, len(player_list)):
-                              if target == self.id or not player_list[target].is_alive():
+                         for target in range(0, len(game.player_list)):
+                              if target == self.id or not game.player_list[target].is_alive():
                                    continue
-                              total_coins += player_list[target].coins
+                              total_coins += game.player_list[target].coins
                          if total_coins == 0:
                               continue
 
                if action in self.need_target:
-                    while target == self.id or not player_list[target].is_alive() or (player_list[target].coins == 0 and action == 'Steal'):
-                         target = random.randint(0, len(player_list) - 1)
+                    while target == self.id or not game.player_list[target].is_alive() or (game.player_list[target].coins == 0 and action == 'Steal'):
+                         target = random.randint(0, len(game.player_list) - 1)
                invalid = False
           return (action, target)
 
-     def challenge(self, action:tuple, player_list:list):
+     def challenge(self, game:Game):
           return random.choice([True,False])
 
-     def block(self, action:tuple, player_list:list):
+     def block(self, game:Game):
           return random.choice([True,False])
           
-     def flip_card(self):
-          super().flip_card()
+     def flip_card(self, game:Game):
+          super().flip_card(game)
           if self.cards[0].is_revealed and self.cards[1].is_revealed:
                return
           card = self.cards[random.randint(0, 1)]
@@ -80,7 +81,7 @@ class RandomAgent(Agent):
                card = self.cards[x]
           card.life_lost()
 
-     def exchange(self, new_cards:list) -> list:
+     def exchange(self, game:Game, new_cards:list) -> list:
           #case 1 : 2 lives 
           card_list = list()
           card_list += new_cards

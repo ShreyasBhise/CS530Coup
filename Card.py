@@ -61,12 +61,12 @@ class Deck:
         random.shuffle(self.cards)
 
     def deal(self) -> Card:
-        print(f'Deck has {len(self.cards) - 1} cards after deal')
+        #print(f'Deck has {len(self.cards) - 1} cards after deal')
         return self.cards.pop(0)
     
     def return_cards(self, to_add:list):
         self.cards += to_add
-        print(f'Deck has {len(self.cards)} cards after return')
+        #print(f'Deck has {len(self.cards)} cards after return')
         random.shuffle(self.cards)
 
 
