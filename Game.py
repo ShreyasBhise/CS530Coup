@@ -5,6 +5,8 @@ import random
 challengable_actions = set(['Assassinate', 'Tax', 'Steal', 'Exchange'])
 blockable_actions = (['Assassinate', 'Steal', 'Foreign Aid'])
 
+dubug = False
+
 class Game:
     # Move state is defined as follows:
     # 0 = current_player needs to make selection
@@ -23,7 +25,10 @@ class Game:
         self.deck = Card.Deck()
         self.player_list = list()
         for i in range(num_players):
-            self.player_list.append(Agent.RandomAgent(i))
+            if i==0:
+                self.player_list.append(Agent.MonteCarloTreeAgent(0))
+            else :
+                self.player_list.append(Agent.RandomAgent(i))
             for _ in range(2):
                 self.player_list[i].cards.append(self.deck.deal())
         self.current_player = random.randint(0, num_players - 1)
@@ -32,11 +37,17 @@ class Game:
         self.target = 0
         self.blocker = 0
         self.win_challenge = False
-        self.challenger = None
+        self.challenger = 0
         self.winner = -1
     
     def run_game(self):
         while self.winner == -1:
+            for player in self.player_list:
+                if len(player.cards)<2:
+                    print("player id:"+str(player.id))
+                    print("error")
+                    print(self.move_state)
+                    print(self.action)
             self.step()
         return self.winner
 
@@ -50,17 +61,17 @@ class Game:
             if self.action in challengable_actions:
                 for player in self.player_list:
                     if player.is_alive() and player.id != self.current_player and player.challenge(self):
-                        self.challenger = player
+                        self.challenger = player.id
                         self.move_state = 2
                         break
             return
         elif (self.move_state == 2):
-            self.win_challenge = resolve_normal_challenge(self, self.player_list[self.current_player], self.challenger, self.action)
+            self.win_challenge = resolve_normal_challenge(self, self.player_list[self.current_player], self.player_list[self.challenger], self.action)
             self.move_state = 3
             return
         elif (self.move_state == 3):
             if (self.win_challenge==True): # challenger must reveal a card
-                self.challenger.flip_card(self)
+                self.player_list[self.challenger].flip_card(self)
                 self.move_state = 4
                 return
             else: # player must reveal a card
@@ -88,23 +99,24 @@ class Game:
                 self.move_state = 8
                 return
         elif (self.move_state == 5):
-            print(str(self.blocker) + ' is blocking ' + self.action + ' from ' + str(self.current_player))
+            if dubug:
+                print(str(self.blocker) + ' is blocking ' + self.action + ' from ' + str(self.current_player))
             self.move_state = 9
             for player in self.player_list:
                 if player.id == self.blocker:
                     continue
                 if player.is_alive() and player.challenge(self):
-                    self.challenger = player
+                    self.challenger = player.id
                     self.move_state = 6
                     break
             return
         elif (self.move_state == 6):
-            self.win_challenge = resolve_block_challenge(self, self.player_list[self.blocker], self.challenger, self.action)
+            self.win_challenge = resolve_block_challenge(self, self.player_list[self.blocker], self.player_list[self.challenger], self.action)
             self.move_state = 7
             return
         elif (self.move_state == 7):
             if (self.win_challenge==True): # challenger must reveal a card
-                self.challenger.flip_card(self)
+                self.player_list[self.challenger].flip_card(self)
                 self.move_state = 9 # move doesn't get executed
                 return
             else: # blocker must reveal a card
@@ -156,7 +168,8 @@ class Game:
 
 # returns true if player has card, false if player doesn't have card
 def resolve_normal_challenge(game:Game, actor:Agent, challenger:Agent, action:str) -> bool:
-    print(str(challenger.id) + ' is challenging ' + str(actor.id) + ' on ' + action)
+    if dubug:
+        print(str(challenger.id) + ' is challenging ' + str(actor.id) + ' on ' + action)
     index = -1
     possible_moves = []
     for i in range(2):
@@ -166,12 +179,14 @@ def resolve_normal_challenge(game:Game, actor:Agent, challenger:Agent, action:st
     #Actor must reveal a card
     if index == -1:
         #actor.flip_card()
-        print(str(actor.id) + " failed challenge.")
+        if dubug:
+            print(str(actor.id) + " failed challenge.")
         return False
     #Challenger must reveal a card, player gets a new card    
     else:
         #challenger.flip_card()
-        print(str(challenger.id) + ' failed challenge.')
+        if dubug:
+            print(str(challenger.id) + ' failed challenge.')
         ans = list()
         ans.append(actor.cards.pop(index))
         game.deck.return_cards(ans)
@@ -180,7 +195,8 @@ def resolve_normal_challenge(game:Game, actor:Agent, challenger:Agent, action:st
 
 # returns true if blocker has card, false if blocker doesn't have card
 def resolve_block_challenge(game:Game, blocker:Agent, challenger:Agent, action:str) -> bool:
-    print(str(challenger.id) + ' is challenging ' + str(blocker.id) + ' on ' + action)
+    if dubug:
+        print(str(challenger.id) + ' is challenging ' + str(blocker.id) + ' on ' + action)
     index = -1
     possible_moves = []
     for i in range(2):
@@ -190,12 +206,14 @@ def resolve_block_challenge(game:Game, blocker:Agent, challenger:Agent, action:s
     #Blocker must reveal a card
     if index == -1:
         #actor.flip_card()
-        print(str(blocker.id) + " failed challenge.")
+        if dubug:
+            print(str(blocker.id) + " failed challenge.")
         return False
     #Challenger must reveal a card, blocker gets a new card    
     else:
         #challenger.flip_card()
-        print(str(challenger.id) + ' failed challenge.')
+        if dubug:
+            print(str(challenger.id) + ' failed challenge.')
         ans = list()
         ans.append(blocker.cards.pop(index))
         game.deck.return_cards(ans)
