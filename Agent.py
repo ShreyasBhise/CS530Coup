@@ -84,7 +84,12 @@ class RandomAgent(Agent):
           card.life_lost()
 
      def exchange(self, game:Game, new_cards:list) -> list:
-          #case 1 : 2 lives 
+          # print('Player ' + str(self.id) + ' Exchanging Cards: ')
+          # for card in self.cards:
+          #      print(card)
+          # print('For: ')
+          # for card in new_cards:
+          #      print(card)
           card_list = list()
           card_list += new_cards
 
@@ -100,7 +105,9 @@ class RandomAgent(Agent):
           for i in range(1, -1, -1):
                if not self.cards[i].is_revealed:
                     self.cards.pop(i)
-
+          # print('End: ')
+          # for card in self.cards:
+          #      print(card)
           return card_list
 
      def __repr__(self):
@@ -231,17 +238,18 @@ class MonteCarloTreeAgent(Agent): # currently assumes all knowledge of other pla
                self.cards[1].life_lost()
                return
           elif self.cards[1].is_revealed:
-               self.cards[0].life_lost
+               self.cards[0].life_lost()
                return
           else: # could reveal either card
                zero_wins = 0
                for i in range(100):
+                    #print('------------------------' + str(self.lives))
                     test_game = copy.deepcopy(game)
                     replacement = RandomAgent(self.id)
                     replacement.lives = self.lives
                     replacement.coins = self.coins
                     replacement.cards = copy.deepcopy(self.cards)
-                    replacement.cards[0].life_lost
+                    replacement.cards[0].life_lost()
                     test_game.player_list[self.id] = replacement
 
                     if game.move_state==3:
@@ -266,7 +274,7 @@ class MonteCarloTreeAgent(Agent): # currently assumes all knowledge of other pla
                     replacement.lives = self.lives
                     replacement.coins = self.coins
                     replacement.cards = copy.deepcopy(self.cards)
-                    replacement.cards[1].life_lost
+                    replacement.cards[1].life_lost()
 
                     test_game.player_list[self.id]=replacement
                     if game.move_state==3:
@@ -284,12 +292,11 @@ class MonteCarloTreeAgent(Agent): # currently assumes all knowledge of other pla
                     if test_game.run_game() == self.id:
                          one_wins = one_wins+1
                if one_wins>zero_wins:
-                    self.cards[1].life_lost
+                    self.cards[1].life_lost()
                else:
-                    self.cards[0].life_lost
+                    self.cards[0].life_lost()
 
      def exchange(self, game:Game, new_cards:list) -> list: # this is still random
-          #case 1 : 2 lives 
           card_list = list()
           card_list += new_cards
 
@@ -297,7 +304,6 @@ class MonteCarloTreeAgent(Agent): # currently assumes all knowledge of other pla
           for i in range(len(self.cards)):
                if not self.cards[i].is_revealed:
                     card_list.append(self.cards[i])
-                    to_pop = i
 
           for _ in range(self.lives):
                self.cards.append(card_list.pop(random.randint(0, len(new_cards)-1)))

@@ -3,7 +3,7 @@ import Agent
 import random
 
 challengable_actions = set(['Assassinate', 'Tax', 'Steal', 'Exchange'])
-blockable_actions = (['Assassinate', 'Steal', 'Foreign Aid'])
+blockable_actions = set(['Assassinate', 'Steal', 'Foreign Aid'])
 
 dubug = False
 
@@ -27,7 +27,7 @@ class Game:
         for i in range(num_players):
             if i==0:
                 self.player_list.append(Agent.MonteCarloTreeAgent(0))
-            else :
+            else:
                 self.player_list.append(Agent.RandomAgent(i))
             for _ in range(2):
                 self.player_list[i].cards.append(self.deck.deal())
@@ -44,7 +44,8 @@ class Game:
         while self.winner == -1:
             for player in self.player_list:
                 if len(player.cards)<2:
-                    print("player id:"+str(player.id))
+                    print("player id: "+str(player.id))
+                    print("current player: "+str(self.current_player))
                     print("error")
                     print(self.move_state)
                     print(self.action)
