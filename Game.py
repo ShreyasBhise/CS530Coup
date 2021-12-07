@@ -26,12 +26,13 @@ class Game:
         self.player_list = list()
         for i in range(num_players):
             if i==0:
-                self.player_list.append(Agent.MonteCarloTreeAgent(0))
+                self.player_list.append(Agent.LookAheadAgent(0))
             else:
                 self.player_list.append(Agent.RandomAgent(i))
             for _ in range(2):
                 self.player_list[i].cards.append(self.deck.deal())
         self.current_player = random.randint(0, num_players - 1)
+        # self.current_player = 0
         self.move_state = 0
         self.action = ""
         self.target = 0
