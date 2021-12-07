@@ -67,7 +67,7 @@ class Deck:
     def return_cards(self, to_add:list):
         self.cards += to_add
         for card in self.cards:
-            card.is_revealed = False
+            card.is_revealed = Falses
         #print(f'Deck has {len(self.cards)} cards after return')
         random.shuffle(self.cards)
 

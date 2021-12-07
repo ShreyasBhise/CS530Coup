@@ -120,6 +120,27 @@ class MonteCarloTreeAgent(Agent): # currently assumes all knowledge of other pla
      def __init__(self, id):
           super().__init__(id)
      
+     # Take deep copied game, and alters it to reflect the agents view of the board
+     def dup_game(self, test_game:Game):
+          replacement = RandomAgent(self.id)
+          replacement.lives = self.lives
+          replacement.coins = self.coins
+          replacement.cards = copy.deepcopy(self.cards)
+          test_game.player_list[self.id]=replacement
+          #randomize unknown cards as agent has no knowledge
+          removed_cards = list()
+          for i in range(test_game.num_players):
+               if i==self.id:
+                    continue
+               for j in range(1, -1, -1):
+                    if test_game.player_list[i].cards[j].is_revealed == False:
+                         removed_cards.append(test_game.player_list[i].cards.pop(j))
+          test_game.deck.return_cards(removed_cards)
+          for i in range(test_game.num_players):
+               while(len(test_game.player_list[i].cards)<2):
+                    test_game.player_list[i].cards.append(test_game.deck.deal())
+
+
      def take_action(self, game:Game):
           if(self.coins>=10):
                return ('Coup', self.id)
@@ -142,12 +163,7 @@ class MonteCarloTreeAgent(Agent): # currently assumes all knowledge of other pla
                wins = 0
                for i in range(100):
                     test_game = copy.deepcopy(game)
-                    replacement = RandomAgent(self.id)
-                    replacement.lives = self.lives
-                    replacement.coins = self.coins
-                    replacement.cards = copy.deepcopy(self.cards)
-
-                    test_game.player_list[self.id]=replacement
+                    self.dup_game(test_game)
                     test_game.action = move
                     test_game.target = target
                     test_game.move_state = 1
@@ -166,12 +182,7 @@ class MonteCarloTreeAgent(Agent): # currently assumes all knowledge of other pla
           true_wins = 0
           for i in range(100):
                test_game = copy.deepcopy(game)
-               replacement = RandomAgent(self.id)
-               replacement.lives = self.lives
-               replacement.coins = self.coins
-               replacement.cards = copy.deepcopy(self.cards)
-
-               test_game.player_list[self.id]=replacement
+               self.dup_game(test_game)
                test_game.challenger = self.id
                if game.move_state==1:
                     test_game.move_state = 2
@@ -182,12 +193,7 @@ class MonteCarloTreeAgent(Agent): # currently assumes all knowledge of other pla
           false_wins = 0
           for i in range(100):
                test_game = copy.deepcopy(game)
-               replacement = RandomAgent(self.id)
-               replacement.lives = self.lives
-               replacement.coins = self.coins
-               replacement.cards = copy.deepcopy(self.cards)
-
-               test_game.player_list[self.id]=replacement
+               self.dup_game(test_game)
                if game.move_state==1:
                     test_game.move_state = 4
                else:
@@ -203,25 +209,15 @@ class MonteCarloTreeAgent(Agent): # currently assumes all knowledge of other pla
           true_wins = 0
           for i in range(100):
                test_game = copy.deepcopy(game)
-               replacement = RandomAgent(self.id)
-               replacement.lives = self.lives
-               replacement.coins = self.coins
-               replacement.cards = copy.deepcopy(self.cards)
-
-               test_game.player_list[self.id]=replacement
-               test_game.blocker = replacement.id
+               self.dup_game(test_game)
+               test_game.blocker = self.id
                test_game.move_state = 5
                if test_game.run_game() == self.id:
                     true_wins = true_wins+1
           false_wins = 0
           for i in range(100):
                test_game = copy.deepcopy(game)
-               replacement = RandomAgent(self.id)
-               replacement.lives = self.lives
-               replacement.coins = self.coins
-               replacement.cards = copy.deepcopy(self.cards)
-
-               test_game.player_list[self.id]=replacement
+               self.dup_game(test_game)
                test_game.move_state = 8
                if test_game.run_game() == self.id:
                     false_wins = false_wins+1
@@ -245,12 +241,8 @@ class MonteCarloTreeAgent(Agent): # currently assumes all knowledge of other pla
                for i in range(100):
                     #print('------------------------' + str(self.lives))
                     test_game = copy.deepcopy(game)
-                    replacement = RandomAgent(self.id)
-                    replacement.lives = self.lives
-                    replacement.coins = self.coins
-                    replacement.cards = copy.deepcopy(self.cards)
-                    replacement.cards[0].life_lost()
-                    test_game.player_list[self.id] = replacement
+                    self.dup_game(test_game)
+                    test_game.player_list[self.id].cards[0].life_lost()
 
                     if game.move_state==3:
                          if game.win_challenge==True:
@@ -270,13 +262,9 @@ class MonteCarloTreeAgent(Agent): # currently assumes all knowledge of other pla
                one_wins = 0
                for i in range(100):
                     test_game = copy.deepcopy(game)
-                    replacement = RandomAgent(self.id)
-                    replacement.lives = self.lives
-                    replacement.coins = self.coins
-                    replacement.cards = copy.deepcopy(self.cards)
-                    replacement.cards[1].life_lost()
+                    self.dup_game(test_game)
+                    test_game.player_list[self.id].cards[0].life_lost()
 
-                    test_game.player_list[self.id]=replacement
                     if game.move_state==3:
                          if game.win_challenge==True:
                               test_game.move_state = 4

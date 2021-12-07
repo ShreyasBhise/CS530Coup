@@ -26,7 +26,7 @@ class Game:
         self.player_list = list()
         for i in range(num_players):
             if i==0:
-                self.player_list.append(Agent.LookAheadAgent(0))
+                self.player_list.append(Agent.MonteCarloTreeAgent(0))
             else:
                 self.player_list.append(Agent.RandomAgent(i))
             for _ in range(2):
@@ -155,9 +155,7 @@ class Game:
             for player in self.player_list:
                 if(player.is_alive()):
                     alive_players += 1 
-            self.current_player = (self.current_player + 1) % self.num_players
-            while not self.player_list[self.current_player].is_alive():
-                self.current_player = (self.current_player + 1) % self.num_players
+
             if not alive_players>1:
                 for player in self.player_list:
                     if(player.is_alive()):
@@ -165,6 +163,11 @@ class Game:
                 if self.winner == -1:
                     print("error: no winner")
                     self.winner = -2
+                    return
+
+            self.current_player = (self.current_player + 1) % self.num_players
+            while not self.player_list[self.current_player].is_alive():
+                self.current_player = (self.current_player + 1) % self.num_players
             return
 
 
@@ -339,15 +342,31 @@ def run_game(num_players:int, player_list:list, deck:Card.Deck):
             print(player.id, end=' ')
             print()
 
+# if __name__ == '__main__':
+#     num_players = 6
+#     game = Game(num_players)
+
+#     for i in range(num_players):
+#         print(i)
+#         print(game.player_list[i].cards[0])
+#         print(game.player_list[i].cards[1])
+#         print('---------------------------')
+
+#     winner =game.run_game()
+#     print(winner)
+
 if __name__ == '__main__':
-    num_players = 6
-    game = Game(num_players)
-
+    num_players = 3
+    win_list = list()
     for i in range(num_players):
-        print(i)
-        print(game.player_list[i].cards[0])
-        print(game.player_list[i].cards[1])
-        print('---------------------------')
+        win_list.append(0)
 
-    winner =game.run_game()
-    print(winner)
+    for i in range(100):
+        print(i)
+        game = Game(num_players)
+        winner = game.run_game()
+        if winner==-2:
+            continue
+        win_list[winner] = win_list[winner]+1
+
+    print(win_list)
